@@ -1,0 +1,12 @@
+package com.rest.springboot.suhail_springboot;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SuhailSpringbootApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SuhailSpringbootApplication.class, args);
+	}
+}
