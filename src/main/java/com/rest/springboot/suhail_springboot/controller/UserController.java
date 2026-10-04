@@ -1,8 +1,9 @@
 package com.rest.springboot.suhail_springboot.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,20 +12,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rest.springboot.suhail_springboot.dao.UserRepository;
 import com.rest.springboot.suhail_springboot.entity.User;
 
 @RestController
 public class UserController {
 	
-	static Map<Integer,User> users = new HashMap<>();
+	@Autowired
+	private UserRepository UserRepository;
 	
-	static {
-		users.put(1, new User(1,"suhail","Male","Noida"));
-		users.put(2, new User(2,"Shadab","Male","Riyadh"));
-		users.put(3, new User(3,"sobi","Male","Delhi"));
-		users.put(4, new User(4,"suahan","Female","Noida"));
+	public UserController(UserRepository UserRepository) {
+		super();
+		this.UserRepository = UserRepository;
 	}
-
+	
+	
 	@GetMapping
 	public User hello() {
 		System.out.println("Hello method");
@@ -32,40 +34,45 @@ public class UserController {
 	}
 	
 	@GetMapping("/get-user/{id}")
-	public User getUserById(@PathVariable (name = "id") int id) {
-		return users.get(id);
+	public Optional<User> getUserById(@PathVariable (name = "id") int id) {
+		return UserRepository.findById(id);
 	}
 	
 	@GetMapping("/all-users")
-	public Map<Integer,User> getAllUsers(){
+	public List<User> getAllUsers(){
 		
-		return users;
+		return UserRepository.findAll();
 	}
 	
 	
 	@PostMapping("/save-user")
 	public User saveUser(@RequestBody User user) {
-		users.put(user.getId(), user);
-		return user;
+		
+		return UserRepository.save(user);
 	}
 	
 	@DeleteMapping("/delete-user/{id}")
 	public String deleteUserById(@PathVariable(name="id") int id) {
-		users.remove(id);		
+		
+		UserRepository.deleteById(id);
 		return "User Deleted Successfully";
 	}
 	
 	
 	@PutMapping("/update-user/{id}")
-	public String updateUser(@PathVariable(name = "id") int id, @RequestBody User updateUser) {
+	public User updateUser(@PathVariable(name = "id") int id, @RequestBody User updatedUser) {
 		
-		User user = users.get(id);
-		if(user != null) {
-			user.setName(updateUser.getName());
-			user.setAddress(updateUser.getAddress());
+		Optional<User> Optionaluser = UserRepository.findById(id);
+		
+		if(Optionaluser.isPresent()) {
+			User user = Optionaluser.get();
 			
-			return "User updated Successfully";
+			user.setName(updatedUser.getName());
+			user.setAddress(updatedUser.getAddress());
+			
+			return UserRepository.save(user);
 		}
-		return "User Not Found";
+		
+		return null;
 	}
 }
